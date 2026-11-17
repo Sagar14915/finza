@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Finza – Personal Finance Tracker</title>
+<style>
+:root{--bg:#f3f5fb;--card:#fff;--tx:#0f1530;--mu:#6c7493;--bd:#e7eaf4;--pr:#5b5bf0;--pr2:#9b5cf6;--gn:#10b981;--rd:#ef4444;--am:#f59e0b;--sh:0 8px 30px rgba(40,50,110,.08);--ch:#eef0fb;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0e1d;--card:#151a30;--tx:#eef0fb;--mu:#98a0c4;--bd:#252b49;--sh:none;--ch:#1d2340;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b0e1d;--card:#151a30;--tx:#eef0fb;--mu:#98a0c4;--bd:#252b49;--sh:none;--ch:#1d2340;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.4}
+.app{display:flex;min-height:100vh}
+aside{width:230px;padding:22px 16px;border-right:1px solid var(--bd);background:var(--card);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px;flex:none}
+.logo{font-weight:800;font-size:22px;margin-bottom:16px;background:linear-gradient(90deg,var(--pr),var(--pr2));-webkit-background-clip:text;background-clip:text;color:transparent}
+#nav{display:flex;flex-direction:column;gap:4px}
+#nav button{display:flex;align-items:center;gap:12px;border:0;background:none;color:var(--mu);padding:12px 14px;border-radius:14px;font-weight:600;font-size:15px;cursor:pointer;text-align:left}
+#nav button.on{background:linear-gradient(90deg,var(--pr),var(--pr2));color:#fff;box-shadow:0 6px 16px rgba(91,91,240,.35)}
+.th{margin-top:auto;border:1px solid var(--bd);background:none;color:var(--mu);padding:10px;border-radius:12px;cursor:pointer}
+main{flex:1;min-width:0;padding:26px;max-width:1000px;margin:auto}
+h2{margin:0;font-size:26px}.sub{color:var(--mu);font-size:13px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;gap:10px;flex-wrap:wrap}
+.rf.fab{position:fixed;right:20px;bottom:24px;z-index:30;width:50px;height:50px;box-shadow:0 8px 22px rgba(91,91,240,.35)}
+.rf{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border:1px solid var(--bd);background:var(--card);color:var(--pr);border-radius:50%;cursor:pointer;box-shadow:var(--sh)}
+.rf svg{width:20px;height:20px}.rf.spin svg{animation:rfspin .7s cubic-bezier(.4,0,.2,1)}
+@keyframes rfspin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+.btn{border:0;background:linear-gradient(90deg,var(--pr),var(--pr2));color:#fff;padding:11px 18px;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px}
+.btn.o{background:var(--ch);color:var(--pr)}
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#4f46e5,#9b5cf6 60%,#ec4899);color:#fff;border-radius:26px;padding:26px;margin-bottom:16px;box-shadow:0 14px 40px rgba(91,91,240,.35)}
+.hero h1{margin:6px 0 10px;font-size:42px;letter-spacing:-.02em}
+.chip{display:inline-block;background:rgba(255,255,255,.2);padding:5px 12px;border-radius:99px;font-size:13px;font-weight:600}
+.hero svg{position:absolute;right:0;bottom:0;width:55%;height:70%;opacity:.9}
+.grid{display:grid;gap:14px;margin-bottom:16px}.g4{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}.g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:18px;box-shadow:var(--sh)}
+.card h3{margin:0 0 14px;font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.k{color:var(--mu);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}.v{font-size:24px;font-weight:800;margin-top:6px}
+.gn{color:var(--gn)}.rd{color:var(--rd)}
+.sc{display:flex;gap:14px;overflow-x:auto;padding:2px 2px 14px;margin-bottom:6px;scroll-snap-type:x mandatory}
+.bank{flex:0 0 270px;scroll-snap-align:start;border-radius:22px;padding:18px;color:#fff;position:relative;min-height:158px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 10px 26px rgba(0,0,0,.18)}
+.grid .bank{flex:initial}
+.bank .chipc{width:36px;height:26px;border-radius:6px;background:linear-gradient(135deg,#fde68a,#f59e0b);opacity:.95}
+.bank .nm{font-weight:700;font-size:16px}.bank .no{letter-spacing:.2em;opacity:.85;font-size:13px}.bank .bl{font-size:24px;font-weight:800}
+.bank .xx{position:absolute;top:12px;right:12px;background:rgba(255,255,255,.2);border:0;color:#fff;border-radius:50%;width:26px;height:26px;cursor:pointer}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--bd)}.row:last-child{border:0}
+.l{display:flex;gap:12px;align-items:center;min-width:0}.ic{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:19px;flex:none}
+.x{background:none;border:0;color:var(--mu);cursor:pointer;font-size:15px}
+.bar{height:10px;background:var(--ch);border-radius:10px;overflow:hidden;margin-top:8px;display:flex}.bar i{display:block;height:100%}
+.pan{display:none;margin-bottom:16px}.pan.on{display:block}
+.ov{display:none;position:fixed;inset:0;z-index:50;background:rgba(10,14,35,.6);animation:fadein .18s ease-out;align-items:center;justify-content:center;padding:16px}
+.ov.on{display:flex}
+.ov .pan{display:block;width:100%;max-width:440px;margin:0;max-height:90vh;overflow:auto;animation:pop .26s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.mh h3{margin:0;font-size:19px}
+.mh .x{border:0;background:var(--ch);color:var(--mu);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px}
+.pan .f{flex-direction:column;gap:12px}
+.fl{display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--mu)}
+.fl input,.fl select{flex:none;width:100%}
+.fl.bad input,.fl.bad select{border-color:var(--rd);box-shadow:0 0 0 3px rgba(239,68,68,.15)}
+.er{color:var(--rd);font-size:12px;font-weight:600;min-height:0}
+.hint{font-size:12px;font-weight:600;color:var(--mu);margin-top:-4px;line-height:1.4}.hint:empty{display:none}
+.hint.gn{color:var(--gn)}.hint.rd{color:var(--rd)}.hint.am{color:var(--am)}
+.hb{display:flex;gap:8px;flex-wrap:wrap}
+.pan .btn{width:100%;margin-top:4px}
+
+.f{display:flex;flex-wrap:wrap;gap:10px}
+input,select{flex:1 1 130px;padding:12px 14px;border-radius:12px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font-size:14px;min-width:0}
+.fl input[type=date]{-webkit-appearance:none;appearance:none;display:block;width:100%;min-height:46px;font-family:inherit;font-weight:600;text-align:left;cursor:pointer;background:var(--bg);padding-right:12px}
+input[type=date]::-webkit-date-and-time-value{text-align:left;min-height:1.4em;margin:0}
+input[type=date]::-webkit-datetime-edit{padding:0}
+input[type=date]::-webkit-datetime-edit-fields-wrapper{padding:0}
+input[type=date]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.75;padding:6px;margin:0 -4px 0 8px;border-radius:8px;transition:background .15s,opacity .15s}
+input[type=date]::-webkit-calendar-picker-indicator:hover{background:var(--ch);opacity:1}
+input[type=date]:focus{outline:0;border-color:var(--pr);box-shadow:0 0 0 3px rgba(91,91,240,.18)}
+.chips{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px;padding-bottom:4px}
+.chips button{border:1px solid var(--bd);background:var(--card);color:var(--mu);padding:8px 14px;border-radius:99px;font-weight:600;cursor:pointer;white-space:nowrap;font-size:13px}
+.chips button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+.donut{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.lg div{font-size:13px;margin:5px 0;display:flex;align-items:center;gap:8px}.lg i{width:10px;height:10px;border-radius:3px}
+.rings{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}.rg{text-align:center}
+.sec{display:none}.sec.on{display:block}
+.foot{text-align:center;color:var(--mu);font-size:12px;margin:22px 0}
+@media (max-width:760px){
+.rf.fab{right:14px;bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+.app{display:block}
+aside{position:fixed;bottom:0;left:0;right:0;top:auto;width:100%;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:20;border-right:0;border-top:1px solid var(--bd)}
+.logo,.th{display:none}#nav{flex-direction:row;width:100%;justify-content:space-around}
+#nav button{flex-direction:column;gap:2px;padding:7px 8px;font-size:10px;text-align:center;border-radius:12px}#nav button span{font-size:19px}
+main{padding:16px 14px calc(96px + env(safe-area-inset-bottom,0px))}
+.hero h1{font-size:34px}h2{font-size:22px}.bank{flex-basis:78%}}
+
+.ov .pan.shake{animation:shake .4s}
+.ov.out{animation:fadeout .17s ease-in forwards;pointer-events:none}
+.ov.out .pan{animation:popout .17s ease-in forwards}
+@keyframes fadein{from{opacity:0}}
+@keyframes fadeout{to{opacity:0}}
+@keyframes popout{to{opacity:0;transform:translateY(10px) scale(.96)}}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.btn{transition:transform .12s,filter .2s}.btn:hover{filter:brightness(1.08)}.btn:active{transform:scale(.97)}
+.new{animation:newin .55s cubic-bezier(.2,.9,.3,1.2)}
+.row.new{animation:newin .55s cubic-bezier(.2,.9,.3,1.2),flash 1.4s ease-out}
+@keyframes newin{from{opacity:0;transform:translateY(-14px) scale(.96)}}
+@keyframes flash{from{background:rgba(91,91,240,.18)}to{background:transparent}}
+.bar i{transform-origin:left}
+.go .bar i{animation:grow .8s cubic-bezier(.2,.8,.2,1)}
+.go .rg circle:nth-child(2){animation:draw .9s cubic-bezier(.2,.8,.2,1)}
+.go #donut circle{animation:draw .9s cubic-bezier(.2,.8,.2,1)}
+@keyframes grow{from{transform:scaleX(0)}}
+@keyframes draw{from{stroke-dasharray:0 400}}
+.v{transform-origin:left center}.v.bump{animation:bump .45s}
+@keyframes bump{40%{transform:scale(1.08)}}
+#toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));z-index:90;display:flex;align-items:center;gap:10px;background:var(--tx);color:var(--bg);padding:10px 18px 10px 12px;border-radius:99px;font-weight:700;font-size:14px;box-shadow:0 12px 30px rgba(0,0,0,.28);opacity:0;pointer-events:none;transform:translate(-50%,-30px) scale(.9);transition:transform .38s cubic-bezier(.2,1.3,.4,1),opacity .2s}
+#toast.on{opacity:1;transform:translate(-50%,0) scale(1)}
+#toast svg{width:24px;height:24px;flex:none}
+#toast .cc{transform-box:fill-box;transform-origin:center}
+#toast .ck{stroke-dasharray:20;stroke-dashoffset:20}
+#toast.on .cc{animation:cpop .35s cubic-bezier(.2,1.4,.4,1)}
+#toast.on .ck{animation:tick .3s .15s ease-out forwards}
+@keyframes cpop{from{transform:scale(0)}}
+@keyframes tick{to{stroke-dashoffset:0}}
+#toast .pt{position:absolute;left:24px;top:50%;width:6px;height:6px;margin:-3px;border-radius:50%;opacity:0;animation:fly .65s .1s ease-out forwards}
+@keyframes fly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(.3)}}
+#xs{margin-top:auto;color:var(--pr);font-weight:700}#th{margin-top:6px}
+.rf.fab#xf{bottom:86px}
+@media (max-width:760px){.rf.fab#xf{right:14px;bottom:calc(148px + env(safe-area-inset-bottom,0px))}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside><div class="logo">💸 Finza</div><div id="nav"></div><button class="th" id="xs">⬇ Export to Excel</button><button class="th" id="th">◐ Switch theme</button></aside>
+<main>
+
+<section class="sec on" id="home">
+<div class="top"><div><h2>Welcome back 👋</h2><div class="sub">Your whole financial picture in one place</div></div></div>
+<div class="hero"><div class="sub" style="color:#fff;opacity:.85">Total net worth</div><h1 id="nw"></h1><span class="chip" id="nwd"></span><div id="spark"></div></div>
+<div class="grid g4" id="stats"></div>
+<div class="top" style="margin-bottom:8px"><h3 style="margin:0">🏦 All bank accounts</h3><span style="display:flex;gap:10px;align-items:center"><button class="btn o" data-p="pt" style="padding:8px 14px">⇄ Transfer</button><b class="gn" id="bt"></b></span></div>
+<div class="sc" id="hb"></div>
+<div class="grid g2"><div class="card"><h3>Spending this month</h3><div class="donut" id="donut"></div></div>
+<div class="card"><h3>Budgets</h3><div id="obud"></div></div></div>
+<div class="card"><h3>Recent transactions</h3><div id="recent"></div></div>
+</section>
+
+<section class="sec" id="banks">
+<div class="top"><div><h2>Bank accounts</h2><div class="sub" id="bsub"></div></div><div class="hb"><button class="btn o" data-p="pt">⇄ Transfer</button><button class="btn" data-p="pb">+ Add bank</button></div></div>
+<div class="card pan" id="pb"><div class="f"><input id="bn" placeholder="Bank name (e.g. Axis Bank)"><select id="bty"><option>Savings</option><option>Current</option><option>Salary</option></select><input id="bl" placeholder="Last 4 digits" maxlength="4"><input id="bb" type="number" placeholder="Balance ₹"><button class="btn" id="badd">Save</button></div></div>
+<div class="card pan" id="pt"><div class="f"><select id="tf"></select><select id="tt"></select><input id="ta" type="number" placeholder="Amount ₹"><input id="tn" placeholder="Note (optional)"><div class="hint" id="tfh"></div><button class="btn" id="tadd">Transfer money</button></div></div>
+<div class="grid g3" id="blist"></div>
+<div class="card" style="margin-top:6px"><h3>Recent transfers</h3><div id="tlist"></div></div>
+</section>
+
+<section class="sec" id="expenses">
+<div class="top"><div><h2>Expenses</h2><div class="sub" id="esub"></div></div><button class="btn" data-p="pe">+ Add expense</button></div>
+<div class="card pan" id="pe"><div class="f"><input id="ed" type="date"><input id="ea" type="number" placeholder="Amount ₹"><select id="ec"></select><div class="hint" id="ech"></div><select id="ebk"></select><div class="hint" id="ebh"></div><button class="btn" id="eadd">Save</button></div></div>
+<div class="f" id="efil" style="margin-bottom:14px"><select id="efm" aria-label="Month"></select><select id="efy" aria-label="Year"></select><button class="btn o" id="efn" type="button" style="flex:0 0 auto">This month</button></div>
+<div class="chips" id="chips"></div>
+<div class="card"><input id="q" placeholder="🔍 Search expenses" style="width:100%;margin-bottom:6px"><div id="elist"></div></div>
+</section>
+
+<section class="sec" id="budgets">
+<div class="top"><div><h2>Budgets</h2><div class="sub" id="bgsub">Monthly limits by category</div></div><button class="btn" data-p="pu">Set budget</button></div>
+<div class="f" id="bfil" style="margin-bottom:14px"><select id="bfm" aria-label="Month"></select><select id="bfy" aria-label="Year"></select><button class="btn o" id="bfn" type="button" style="flex:0 0 auto">This month</button></div>
+<div class="card pan" id="pu"><div class="f"><select id="bpm"></select><select id="bpy"></select><select id="bc"></select><div class="hint" id="bch"></div><input id="bcn" placeholder="e.g. Travel"><input id="bci" placeholder="e.g. ✈️" maxlength="8"><input id="ba" type="number" placeholder="Monthly limit ₹"><button class="btn" id="bset">Save</button></div></div>
+<div class="rings" id="rings"></div>
+</section>
+
+<section class="sec" id="invest">
+<div class="top"><div><h2>Investments</h2><div class="sub" id="isub"></div></div><button class="btn" data-p="pi">+ Add investment</button></div>
+<div class="card pan" id="pi"><div class="f"><input id="in" placeholder="Name"><select id="ity"><option>Mutual Fund</option><option>Stocks</option><option>Gold</option><option>Crypto</option><option>FD</option></select><input id="idt" type="date"><input id="ii" type="number" placeholder="Amount ₹"><select id="ibk"></select><div class="hint" id="ibh"></div><button class="btn" id="iadd">Save</button></div></div>
+<div class="f" id="ifil" style="margin-bottom:14px"><select id="ifm" aria-label="Month"></select><select id="ify" aria-label="Year"></select><button class="btn o" id="ifn" type="button" style="flex:0 0 auto">This month</button></div>
+<div class="card" style="margin-bottom:14px"><h3>Allocation</h3><div id="alloc"></div></div>
+<div class="card" id="ilist"></div>
+</section>
+
+<section class="sec" id="loans">
+<div class="top"><div><h2>Loans</h2><div class="sub" id="lsub"></div></div><button class="btn" data-p="pl">+ Add loan</button></div>
+<div class="card pan" id="pl"><div class="f"><input id="ln" placeholder="Loan name"><input id="lp" type="number" placeholder="Total ₹"><input id="ld" type="number" placeholder="Paid ₹"><input id="le" type="number" placeholder="EMI ₹"><button class="btn" id="ladd">Save</button></div></div>
+<div class="grid g2" id="llist"></div>
+</section>
+<div class="card pan" id="px"><div class="f"><select id="xm"></select><select id="xy"></select><div class="hint" id="xh"></div><button class="btn" id="xgo">⬇ Download Excel</button></div></div>
+<div class="foot">Demo build · sample data · saved only in your browser</div>
+</main></div>
+<div id="toast" role="status" aria-live="polite"><svg viewBox="0 0 24 24"><circle class="cc" cx="12" cy="12" r="11" fill="#10b981"/><path class="ck" d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span></span></div>
+<button class="rf fab" id="xf" title="Export to Excel" aria-label="Export to Excel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg></button>
+<button class="rf fab" id="rf" title="Refresh" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg></button>
+<script>
+var CAT={Food:["🍔","#f59e0b"],Transport:["🚕","#3b82f6"],Shopping:["🛍️","#ec4899"],Bills:["💡","#8b5cf6"],Health:["💊","#10b981"],Fun:["🎬","#ef4444"]};
+var GR=["linear-gradient(135deg,#1e3a8a,#3b82f6)","linear-gradient(135deg,#065f46,#10b981)","linear-gradient(135deg,#7c2d12,#f59e0b)","linear-gradient(135deg,#581c87,#ec4899)","linear-gradient(135deg,#0f172a,#475569)"];
+var TC=["#5b5bf0","#10b981","#f59e0b","#ec4899","#3b82f6"];
+var D={banks:[{n:"HDFC Bank",t:"Savings",l:"4821",b:68500},{n:"State Bank of India",t:"Salary",l:"1190",b:42300},{n:"ICICI Bank",t:"Savings",l:"7734",b:13700}],
+exp:[{t:"Groceries",a:3200,c:"Food",d:"2026-11-16"},{t:"Metro pass",a:900,c:"Transport",d:"2026-11-15"},{t:"Electricity bill",a:2100,c:"Bills",d:"2026-11-12"},{t:"Sneakers",a:4500,c:"Shopping",d:"2026-11-10"},{t:"Dinner out",a:1800,c:"Food",d:"2026-11-08"},{t:"Pharmacy",a:600,c:"Health",d:"2026-11-06"},{t:"Movie night",a:850,c:"Fun",d:"2026-11-03"}],
+bud:{Food:8000,Transport:3000,Shopping:6000,Bills:5000,Health:2000,Fun:2500},
+inv:[{n:"Nifty 50 Index Fund",t:"Mutual Fund",i:150000,c:171200},{n:"Reliance Industries",t:"Stocks",i:60000,c:66800},{n:"Sovereign Gold Bond",t:"Gold",i:40000,c:47500},{n:"Bank FD",t:"FD",i:50000,c:53200}],
+loans:[{n:"Home Loan",p:2500000,d:600000,e:21500},{n:"Car Loan",p:600000,d:360000,e:12800}]};
+try{var s=localStorage.getItem("finza3");if(s)D=JSON.parse(s)}catch(e){}
+D.cc=D.cc||[];D.tr=D.tr||[];
+if(!D.mb){D.mb={};if(D.bud)D.mb[mkey()]=D.bud}delete D.bud;
+function bud(k){return D.mb[k]||{}}
+var PAL=["#14b8a6","#f43f5e","#6366f1","#84cc16","#06b6d4","#d946ef","#f97316","#0ea5e9"];
+var uid=function(){return "b"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
+D.banks.forEach(function(b){if(!b.id)b.id=uid()});D.inv.forEach(function(v){if(!v.d)v.d=mkey()+"-01"});
+D.cc.forEach(function(c){CAT[c.n]=[c.i,c.c]});
+var $=function(i){return document.getElementById(i)};
+var r2=function(n){return Math.round(n*100)/100};
+function pad(n){return ("0"+n).slice(-2)}
+function mkey(){var d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)}
+function today(){return mkey()+"-"+pad(new Date().getDate())}
+function mexp(){var k=mkey();return D.exp.filter(function(e){return e.d.slice(0,7)===k})}
+function spentBy(c){return sum(mexp().filter(function(e){return e.c===c}),"a")}
+var bm=mkey(),MN=["January","February","March","April","May","June","July","August","September","October","November","December"];
+function bexp(){return D.exp.filter(function(e){return e.d.slice(0,7)===bm})}
+var im=mkey();
+function imatch(v){return im.slice(5)?v.d.slice(0,7)===im:v.d.slice(0,4)===im.slice(0,4)}
+function iexp(){return D.inv.filter(imatch)}
+function ilabel(){return im.slice(5)?MN[+im.slice(5)-1]+" "+im.slice(0,4):"All of "+im.slice(0,4)}
+function fillIF(){
+ var ys={};ys[new Date().getFullYear()]=1;ys[+im.slice(0,4)]=1;D.inv.forEach(function(v){ys[+v.d.slice(0,4)]=1});
+ var yh=Object.keys(ys).sort().map(function(y){return '<option value="'+y+'">'+y+'</option>'}).join("");
+ if($("ify").innerHTML!==yh)$("ify").innerHTML=yh;
+ if(!$("ifm").options.length)$("ifm").innerHTML='<option value="">All months</option>'+MN.map(function(m,i){return '<option value="'+pad(i+1)+'">'+m+'</option>'}).join("");
+ $("ify").value=im.slice(0,4);$("ifm").value=im.slice(5);
+}
+function ihint(){var a=Number($("ii").value)||0,k=getBank($("ibk").value),h=$("ibh");
+ if(!k){h.className="hint rd";h.textContent="Add a bank account first";return}
+ var ba=k.b-a;h.className="hint "+(ba<0?"rd":"");h.textContent=ba<0?"Insufficient balance in "+k.n+" ("+f(k.b)+")":"Balance: "+f(k.b)+(a>0?" → "+f(ba)+" after this":"")}
+var em=mkey();
+function eexp(){return D.exp.filter(function(e){return em.slice(5)?e.d.slice(0,7)===em:e.d.slice(0,4)===em.slice(0,4)})}
+function elabel(){return em.slice(5)?MN[+em.slice(5)-1]+" "+em.slice(0,4):"All of "+em.slice(0,4)}
+function fillEF(){
+ var ys={};ys[new Date().getFullYear()]=1;ys[+em.slice(0,4)]=1;D.exp.forEach(function(e){ys[+e.d.slice(0,4)]=1});
+ var yh=Object.keys(ys).sort().map(function(y){return '<option value="'+y+'">'+y+'</option>'}).join("");
+ if($("efy").innerHTML!==yh)$("efy").innerHTML=yh;
+ if(!$("efm").options.length)$("efm").innerHTML='<option value="">All months</option>'+MN.map(function(m,i){return '<option value="'+pad(i+1)+'">'+m+'</option>'}).join("");
+ $("efy").value=em.slice(0,4);$("efm").value=em.slice(5);
+}
+function blabel(){return MN[+bm.slice(5)-1]+" "+bm.slice(0,4)}
+function fillBF(){
+ var ys={};ys[new Date().getFullYear()]=1;ys[+bm.slice(0,4)]=1;D.exp.forEach(function(e){ys[+e.d.slice(0,4)]=1});Object.keys(D.mb).forEach(function(k){ys[+k.slice(0,4)]=1});
+ var yh=Object.keys(ys).sort().map(function(y){return '<option value="'+y+'">'+y+'</option>'}).join("");
+ if($("bfy").innerHTML!==yh)$("bfy").innerHTML=yh;
+ if(!$("bfm").options.length)$("bfm").innerHTML=MN.map(function(m,i){return '<option value="'+pad(i+1)+'">'+m+'</option>'}).join("");
+ $("bfy").value=bm.slice(0,4);$("bfm").value=bm.slice(5);
+}
+function pk(){return $("bpy").value+"-"+$("bpm").value}
+function fillBM(){
+ var y0=new Date().getFullYear(),ys=[],by=+bm.slice(0,4);for(var y=y0-1;y<=y0+2;y++)ys.push(y);if(ys.indexOf(by)<0)ys.push(by);ys.sort();
+ $("bpy").innerHTML=ys.map(function(y){return '<option value="'+y+'">'+y+'</option>'}).join("");
+ $("bpm").innerHTML=MN.map(function(m,i){return '<option value="'+pad(i+1)+'">'+m+'</option>'}).join("");
+ $("bpy").value=bm.slice(0,4);$("bpm").value=bm.slice(5);
+}
+function getBank(id){for(var i=0;i<D.banks.length;i++)if(D.banks[i].id===id)return D.banks[i];return null}
+function bopt(b){return '<option value="'+b.id+'">'+b.n+(b.l?" ••••"+b.l:"")+" · "+f(b.b)+'</option>'}
+function fillBanks(id){$(id).innerHTML=D.banks.length?D.banks.map(bopt).join(""):'<option value="">No bank accounts</option>'}
+function catOpts(){return Object.keys(CAT).map(function(c){return '<option value="'+c+'">'+CAT[c][0]+" "+c+'</option>'}).join("")}
+function fillCats(){$("ec").innerHTML=catOpts();$("bc").innerHTML=catOpts()+'<option value="__new">＋ New category…</option>'}
+function ehint(){
+ var c=$("ec").value,a=Number($("ea").value)||0,h=$("ech"),dv=$("ed").value,mk=/^\d{4}-\d{2}-\d{2}$/.test(dv)?dv.slice(0,7):mkey(),ml=MN[+mk.slice(5)-1]+" "+mk.slice(0,4),b=bud(mk)[c];
+ if(b===undefined){h.className="hint";h.textContent="No budget set for "+c+" in "+ml}
+ else{var left=b-sum(D.exp.filter(function(e){return e.d.slice(0,7)===mk&&e.c===c}),"a"),after=left-a;h.className="hint "+(after<0?"rd":left/b<.2?"am":"gn");
+  h.textContent=(left<0?c+" budget exceeded by "+f(-left)+" in "+ml:"Budget left in "+ml+": "+f(left)+" of "+f(b))+(a>0?(after<0?" → over by "+f(-after)+" after this":" → "+f(after)+" after this"):"")}
+ var k=getBank($("ebk").value),bh=$("ebh");
+ if(!k){bh.className="hint rd";bh.textContent="Add a bank account first"}
+ else{var ba=k.b-a;bh.className="hint "+(ba<0?"rd":"");bh.textContent=ba<0?"Insufficient balance in "+k.n+" ("+f(k.b)+")":"Balance: "+f(k.b)+(a>0?" → "+f(ba)+" after this":"")}
+}
+function thint(){
+ var fr=getBank($("tf").value),to=getBank($("tt").value),a=Number($("ta").value)||0,h=$("tfh");h.className="hint";
+ if(D.banks.length<2){h.className="hint rd";h.textContent="Add at least two bank accounts to transfer";return}
+ if(fr&&to&&fr.id===to.id){h.className="hint am";h.textContent="Choose two different accounts";return}
+ if(!fr||!to||a<=0){h.textContent="";return}
+ h.className="hint "+(a>fr.b?"rd":"gn");
+ h.textContent=a>fr.b?"Insufficient balance in "+fr.n+" ("+f(fr.b)+")":fr.n+" → "+f(fr.b-a)+" · "+to.n+" → "+f(to.b+a)}
+function bhint(){
+ var c=$("bc").value,h=$("bch");if(c==="__new"){h.textContent="";return}
+ h.className="hint";var k=pk(),sp=sum(D.exp.filter(function(e){return e.d.slice(0,7)===k&&e.c===c}),"a"),lim=bud(k)[c];
+ h.textContent="Spent in "+MN[+k.slice(5)-1]+" "+k.slice(0,4)+": "+f(sp)+(lim!==undefined?" · current limit "+f(lim):" · no limit set")}
+function toggleNew(){var n=$("bc").value==="__new";["bcn","bci"].forEach(function(i){$(i).closest(".fl").style.display=n?"":"none"})}
+function prep(id){
+ if(id==="px")fillX();
+ if(id==="pe"){fillCats();fillBanks("ebk");$("ed").value=today();ehint()}
+ if(id==="pi"){fillBanks("ibk");$("idt").value=today();ihint()}
+ if(id==="pu"){fillCats();fillBM();toggleNew();bhint()}
+ if(id==="pt"){fillBanks("tf");fillBanks("tt");if(D.banks.length>1)$("tt").selectedIndex=1;thint()}
+}
+var f=function(n){return "₹"+Math.round(n).toLocaleString("en-IN")};
+var sum=function(a,k){return a.reduce(function(x,y){return x+y[k]},0)};
+var fc="All";
+var tabs=[["home","🏠","Home"],["banks","🏦","Banks"],["expenses","🧾","Expenses"],["budgets","🎯","Budgets"],["invest","📈","Invest"],["loans","💳","Loans"]];
+function show(id){tabs.forEach(function(t){$(t[0]).classList.toggle("on",t[0]===id)});[].forEach.call($("nav").children,function(b){b.classList.toggle("on",b.dataset.id===id)});window.scrollTo(0,0);try{history.replaceState(null,"","#"+id)}catch(e){}}
+tabs.forEach(function(t){var b=document.createElement("button");b.dataset.id=t[0];b.innerHTML="<span>"+t[1]+"</span>"+t[2];b.onclick=function(){show(t[0])};$("nav").appendChild(b)});
+[].forEach.call(document.querySelectorAll("[data-p]"),function(b){b.onclick=function(){openM(b.dataset.p)}});
+fillCats();
+$("th").onclick=function(){var r=document.documentElement;r.dataset.theme=getComputedStyle(r).getPropertyValue("--bg").trim()==="#0b0e1d"?"light":"dark"};
+function bar(p,c){return '<div class="bar"><i style="width:'+Math.min(p,100)+'%;background:'+c+'"></i></div>'}
+function X(fn,i){return '<button class="x" onclick="'+fn+'('+i+')">✕</button>'}
+function ring(p,c,t,s){var C=2*Math.PI*32;return '<svg width="86" height="86" viewBox="0 0 86 86"><circle cx="43" cy="43" r="32" fill="none" stroke="var(--ch)" stroke-width="9"/><circle cx="43" cy="43" r="32" fill="none" stroke="'+c+'" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+Math.min(p,100)/100*C+" "+C+'" transform="rotate(-90 43 43)"/><text x="43" y="48" text-anchor="middle" font-size="15" font-weight="700" fill="var(--tx)">'+Math.round(p)+'%</text></svg>'}
+function bcard(b,i,del){return '<div class="bank" style="background:'+GR[i%GR.length]+'">'+(del?'<button class="xx" onclick="db('+i+')">✕</button>':'')+'<div style="display:flex;justify-content:space-between;align-items:center"><div class="chipc"></div><span style="font-size:12px;opacity:.85">'+b.t+'</span></div><div><div class="no">•••• •••• '+(b.l||"0000")+'</div><div class="nm" style="margin-top:6px">'+b.n+'</div></div><div class="bl">'+f(b.b)+'</div></div>'}
+function fmt(d){return new Date(d+"T00:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"})}
+function renderNow(){
+ var bank=sum(D.banks,"b"),inv=sum(D.inv,"c"),invd=sum(D.inv,"i"),owe=sum(D.loans,"p")-sum(D.loans,"d"),emi=sum(D.loans,"e"),spent=sum(mexp(),"a"),nw=bank+inv-owe;
+ cnt($("nw"),nw,"nw");$("nwd").textContent="▲ 4.2% vs last month";
+ var pts=[.86,.88,.87,.91,.93,.96,1].map(function(m,i){return [i*50,90-(m-.84)/.16*70]});
+ var line=pts.map(function(p,i){return (i?"L":"M")+p[0]+" "+p[1]}).join(" ");
+ $("spark").innerHTML='<svg viewBox="0 0 300 100" preserveAspectRatio="none"><path d="'+line+' L300 100 L0 100Z" fill="rgba(255,255,255,.18)"/><path d="'+line+'" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>';
+ var g=inv-invd;
+ $("stats").innerHTML=[["Bank balance",f(bank),D.banks.length+" accounts",""],["Investments",f(inv),(g>=0?"▲ ":"▼ ")+f(Math.abs(g)),g>=0?"gn":"rd"],["Loans left",f(owe),"EMI "+f(emi)+"/mo","rd"],["Spent",f(spent),"this month",""]].map(function(s){return '<div class="card"><div class="k">'+s[0]+'</div><div class="v">'+s[1]+'</div><div class="sub '+s[3]+'">'+s[2]+'</div></div>'}).join("");
+ [bank,inv,owe,spent].forEach(function(v,i){cnt($("stats").children[i].querySelector(".v"),v,"s"+i)});
+ $("bt").textContent="Total "+f(bank);$("hb").innerHTML=D.banks.map(function(b,i){return bcard(b,i,0)}).join("");
+ $("blist").innerHTML=D.banks.map(function(b,i){return bcard(b,i,1)}).join("")||'<div class="sub">No accounts yet</div>';$("bsub").textContent=D.banks.length+" accounts · "+f(bank)+" total";
+ var by={};mexp().forEach(function(e){by[e.c]=(by[e.c]||0)+e.a});
+ var C=2*Math.PI*52,off=0,arcs="";Object.keys(by).forEach(function(c){var l=by[c]/spent*C;arcs+='<circle r="52" cx="70" cy="70" fill="none" stroke="'+CAT[c][1]+'" stroke-width="20" stroke-dasharray="'+l+" "+(C-l)+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 70 70)"/>';off+=l});
+ $("donut").innerHTML='<svg width="140" height="140" viewBox="0 0 140 140">'+arcs+'<text x="70" y="68" text-anchor="middle" fill="var(--tx)" font-weight="800" font-size="15">'+f(spent)+'</text><text x="70" y="85" text-anchor="middle" fill="var(--mu)" font-size="10">spent</text></svg><div class="lg">'+Object.keys(by).map(function(c){return '<div><i style="background:'+CAT[c][1]+'"></i>'+c+" · "+f(by[c])+'</div>'}).join("")+'</div>';
+ var cb=bud(mkey()),bk=Object.keys(cb);
+ $("obud").innerHTML=bk.map(function(c){var u=by[c]||0,p=u/cb[c]*100;return '<div style="margin-bottom:12px"><div class="row" style="padding:0;border:0"><b>'+CAT[c][0]+" "+c+'</b><span class="sub">'+f(u)+" / "+f(cb[c])+'</span></div>'+bar(p,p>100?"var(--rd)":p>80?"var(--am)":"var(--gn)")+'</div>'}).join("");
+ if(!bk.length)$("obud").innerHTML='<div class="sub">No budget set for this month</div>';
+ var sb=bud(bm);bk=Object.keys(sb);fillBF();var bb={};bexp().forEach(function(e){bb[e.c]=(bb[e.c]||0)+e.a});
+ var tb=0,ts=0;bk.forEach(function(c){tb+=sb[c];ts+=bb[c]||0});
+ $("bgsub").textContent=blabel()+" · "+f(ts)+" spent of "+f(tb);
+ if(!bk.length)$("bgsub").textContent=blabel()+" · no budget set";
+ $("rings").innerHTML=!bk.length?'<div class="card sub" style="grid-column:1/-1;text-align:center;padding:36px 18px">🎯 No budget set yet. Tap "Set budget" to add one.</div>':bk.map(function(c){var u=bb[c]||0,p=u/sb[c]*100;return '<div class="card rg">'+ring(p,p>100?"#ef4444":p>80?"#f59e0b":CAT[c][1])+'<div style="font-weight:700;margin-top:6px">'+CAT[c][0]+" "+c+'</div><div class="sub">'+f(u)+" of "+f(sb[c])+'</div><div class="sub '+(p>100?"rd":"gn")+'">'+(p>100?"Over by "+f(u-sb[c]):f(sb[c]-u)+" left")+'</div></div>'}).join("");
+ var row=function(e,i,del){return '<div class="row"><div class="l"><div class="ic" style="background:'+CAT[e.c][1]+'22">'+CAT[e.c][0]+'</div><div><b>'+e.t+'</b><div class="sub">'+e.c+" · "+fmt(e.d)+(e.k&&getBank(e.k)?" · "+getBank(e.k).n:"")+'</div></div></div><div class="l"><b class="rd">−'+f(e.a)+'</b>'+(del?X("de",i):"")+'</div></div>'};
+ var idx=D.exp.map(function(e,i){return i}).sort(function(a,b){return D.exp[b].d.localeCompare(D.exp[a].d)||b-a});
+ $("recent").innerHTML=idx.slice(0,4).map(function(i){return row(D.exp[i],i,0)}).join("");
+ var hc={};eexp().forEach(function(e){hc[e.c]=1});if(fc!=="All"&&!hc[fc])fc="All";
+ $("chips").innerHTML=["All"].concat(Object.keys(CAT).filter(function(c){return hc[c]})).map(function(c){return '<button class="'+(c===fc?"on":"")+'" onclick="fcat(\''+c+'\')">'+(CAT[c]?CAT[c][0]+" ":"")+c+'</button>'}).join("");
+ var q=$("q").value.toLowerCase();
+ $("elist").innerHTML=idx.filter(function(i){var e=D.exp[i];return (em.slice(5)?e.d.slice(0,7)===em:e.d.slice(0,4)===em.slice(0,4))&&(fc==="All"||e.c===fc)&&e.t.toLowerCase().indexOf(q)>-1}).map(function(i){return row(D.exp[i],i,1)}).join("")||'<div class="sub" style="padding:12px 0">Nothing found</div>';
+ fillEF();var ee=eexp();$("esub").textContent=elabel()+" · "+ee.length+" transactions · "+f(sum(ee,"a"))+" spent";
+ $("tlist").innerHTML=D.tr.slice().reverse().slice(0,8).map(function(t){return '<div class="row"><div class="l"><div class="ic" style="background:var(--ch)">⇄</div><div><b>'+t.f+" → "+t.t+'</b><div class="sub">'+fmt(t.d)+(t.n?" · "+t.n:"")+'</div></div></div><b>'+f(t.a)+'</b></div>'}).join("")||'<div class="sub" style="padding:12px 0">No transfers yet</div>';
+  fillIF();var iv=iexp(),ivt=sum(iv,"c"),ivi=sum(iv,"i"),ig=ivt-ivi;
+ $("isub").textContent=ilabel()+" · "+f(ivt)+" value · "+(ig>=0?"▲ ":"▼ ")+f(Math.abs(ig))+" ("+(ivi?(ig/ivi*100).toFixed(1):0)+"%)";
+ var ty={};iv.forEach(function(v){ty[v.t]=(ty[v.t]||0)+v.c});var tk=Object.keys(ty);
+ $("alloc").innerHTML=tk.length&&ivt>0?'<div class="bar" style="height:14px">'+tk.map(function(t,i){return '<i style="width:'+ty[t]/ivt*100+'%;background:'+TC[i%5]+'"></i>'}).join("")+'</div><div class="lg" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:10px">'+tk.map(function(t,i){return '<div><i style="background:'+TC[i%5]+'"></i>'+t+" "+Math.round(ty[t]/ivt*100)+'%</div>'}).join("")+'</div>':'<div class="sub">No investments for '+ilabel()+'</div>';
+ var iidx=D.inv.map(function(v,i){return i}).filter(function(i){return imatch(D.inv[i])}).sort(function(x,y){return D.inv[y].d.localeCompare(D.inv[x].d)||y-x});
+ $("ilist").innerHTML=iidx.map(function(i){var v=D.inv[i],d=v.c-v.i,bk=v.k?getBank(v.k):null;return '<div class="row"><div class="l"><div class="ic" style="background:var(--ch)">📈</div><div><b>'+v.n+'</b><div class="sub">'+v.t+" · "+fmt(v.d)+" · invested "+f(v.i)+(bk?" · "+bk.n:"")+'</div></div></div><div class="l"><div style="text-align:right"><b>'+f(v.c)+'</b><div class="sub '+(d>=0?"gn":"rd")+'">'+(d>=0?"▲ ":"▼ ")+(d/v.i*100).toFixed(1)+'%</div></div>'+X("di",i)+'</div></div>'}).join("")||'<div class="sub" style="padding:12px 0">No investments for '+ilabel()+'</div>';
+$("lsub").textContent=f(owe)+" outstanding · "+f(emi)+" EMI per month";
+ $("llist").innerHTML=D.loans.map(function(l,i){var p=l.d/l.p*100,m=l.e?Math.ceil((l.p-l.d)/l.e):0;return '<div class="card"><h3><span>💳 '+l.n+'</span>'+X("dl",i)+'</h3><div class="v" style="margin:0">'+f(l.p-l.d)+'</div><div class="sub">remaining of '+f(l.p)+'</div>'+bar(p,"linear-gradient(90deg,var(--pr),var(--pr2))")+'<div class="row" style="border:0;padding:10px 0 0"><span class="sub">'+p.toFixed(0)+'% repaid</span><span class="sub">EMI '+f(l.e)+(m?" · ~"+m+" months left":"")+'</span></div></div>'}).join("");
+ persist();
+}
+window.fcat=function(c){fc=c;render()};
+window.db=function(i){D.banks.splice(i,1);render()};window.de=function(i){var e=D.exp[i],b=e&&e.k?getBank(e.k):null;if(b)b.b=r2(b.b+e.a);D.exp.splice(i,1);render()};window.di=function(i){var v=D.inv[i],b=v&&v.k?getBank(v.k):null;if(b)b.b=r2(b.b+v.i);D.inv.splice(i,1);render()};window.dl=function(i){D.loans.splice(i,1);render()};
+$("q").oninput=render;
+function bset2(){bm=$("bfy").value+"-"+$("bfm").value;render()}
+$("bfm").onchange=bset2;$("bfy").onchange=bset2;
+$("bfn").onclick=function(){bm=mkey();render()};
+function eset2(){em=$("efy").value+"-"+$("efm").value;render()}
+$("efm").onchange=eset2;$("efy").onchange=eset2;
+$("efn").onclick=function(){em=mkey();render()};
+function iset2(){im=$("ify").value+"-"+$("ifm").value;render()}
+$("ifm").onchange=iset2;$("ify").onchange=iset2;
+$("ifn").onclick=function(){im=mkey();render()};
+var FL={xm:"Month",xy:"Year",bn:"Bank name",bty:"Account type",bl:"Last 4 digits (optional)",bb:"Balance (₹)",et:"What did you buy?",ea:"Amount (₹)",ec:"Category",ed:"Date",bc:"Category",bpm:"Month",bpy:"Year",ebk:"Pay from bank account",bcn:"New category name",bci:"Icon (emoji, optional)",tf:"From account",tt:"To account",ta:"Amount (₹)",tn:"Note (optional)",ba:"Monthly limit (₹)","in":"Investment name",ity:"Type",ii:"Amount to invest (₹)",idt:"Date",ibk:"Pay from bank account",ln:"Loan name",lp:"Total loan amount (₹)",ld:"Amount paid (₹) – optional",le:"Monthly EMI (₹) – optional"};
+var TT={px:"Export to Excel",pb:"Add bank account",pe:"Add expense",pu:"Set budget",pi:"Add investment",pl:"Add loan",pt:"Transfer money"};
+[].forEach.call(document.querySelectorAll(".pan"),function(p){
+ var ov=document.createElement("div");ov.className="ov";ov.id="o_"+p.id;p.parentNode.insertBefore(ov,p);ov.appendChild(p);
+ [].forEach.call(p.querySelectorAll("input,select"),function(el){var l=document.createElement("label");l.className="fl";var sp=document.createElement("span");sp.textContent=FL[el.id];l.appendChild(sp);el.parentNode.insertBefore(l,el);l.appendChild(el);var e=document.createElement("small");e.className="er";l.appendChild(e);if(el.tagName==="INPUT"&&el.type!=="number")el.maxLength=el.maxLength>0?el.maxLength:40;if(el.type==="number"){el.min="0";el.step="any";el.inputMode="decimal"}});
+ var h=document.createElement("div");h.className="mh";var t=document.createElement("h3");t.textContent=TT[p.id];var x=document.createElement("button");x.type="button";x.className="x";x.textContent="✕";x.setAttribute("aria-label","Close");h.appendChild(t);h.appendChild(x);p.insertBefore(h,p.firstChild);
+ x.onclick=function(){closeM(p.id)};
+ ov.onmousedown=function(e){if(e.target===ov)closeM(p.id)};
+ p.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.tagName==="INPUT"){e.preventDefault();p.querySelector(".btn").click()}});
+ p.addEventListener("input",function(e){var l=e.target.closest(".fl");if(l){l.classList.remove("bad");l.querySelector(".er").textContent=""}});
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){var o=document.querySelector(".ov.on");if(o)closeM(o.querySelector(".pan").id)}});
+var PV={},pt,tt,rq=0;
+function render(){if(rq)return;rq=requestAnimationFrame(function(){rq=0;renderNow()})}
+function save(){try{localStorage.setItem("finza3",JSON.stringify(D))}catch(e){}}
+function persist(){clearTimeout(pt);pt=setTimeout(save,400)}
+addEventListener("pagehide",save);document.addEventListener("visibilitychange",function(){if(document.hidden)save()});
+function cnt(el,to,key){var from=PV[key],k=el._k=(el._k||0)+1;PV[key]=to;if(from===undefined||from===to||matchMedia("(prefers-reduced-motion:reduce)").matches){el.textContent=f(to);return}el.classList.remove("bump");void el.offsetWidth;el.classList.add("bump");var t0=performance.now();(function s(t){if(el._k!==k)return;var p=Math.min((t-t0)/550,1),e=1-Math.pow(1-p,3);el.textContent=f(from+(to-from)*e);if(p<1)requestAnimationFrame(s)})(t0)}
+function burst(t){var cs=["#5b5bf0","#9b5cf6","#ec4899","#f59e0b","#10b981"];for(var i=0;i<12;i++){var d=document.createElement("i"),a=i/12*6.283+Math.random()*.4,r=26+Math.random()*20;d.className="pt";d.style.cssText="--x:"+Math.cos(a)*r+"px;--y:"+Math.sin(a)*r+"px;background:"+cs[i%5];t.appendChild(d);setTimeout(function(e){e.remove()},750,d)}}
+function toast(m){var t=$("toast");t.querySelector("span").textContent=m;t.classList.remove("on");void t.offsetWidth;t.classList.add("on");burst(t);clearTimeout(tt);tt=setTimeout(function(){t.classList.remove("on")},1900)}
+function done(id,msg,sel){closeM(id);requestAnimationFrame(function(){renderNow();var b=document.body;b.classList.add("go");setTimeout(function(){b.classList.remove("go")},900);[].forEach.call(document.querySelectorAll(sel),function(e){e.classList.add("new")});toast(msg)})}
+function fin(id){var p=$(id),o=$("o_"+id);clearTimeout(o._t);[].forEach.call(p.querySelectorAll("input"),function(i){i.value=""});[].forEach.call(p.querySelectorAll("select"),function(s){s.selectedIndex=0});p.classList.remove("shake");clrE(id);o.classList.remove("on","out")}
+function openM(id){fin(id);prep(id);$("o_"+id).classList.add("on");document.body.style.overflow="hidden";var f=$(id).querySelector("input");if(f)setTimeout(function(){f.focus()},60)}
+function closeM(id){var o=$("o_"+id);if(!o.classList.contains("on")||o.classList.contains("out"))return;o.classList.add("out");document.body.style.overflow="";o._t=setTimeout(function(){fin(id)},170)}
+var bd=0,MAX=1e11;
+function clrE(id){bd=0;[].forEach.call($(id).querySelectorAll(".fl"),function(l){l.classList.remove("bad");l.querySelector(".er").textContent=""})}
+function bad(id,m){var l=$(id).closest(".fl");l.classList.add("bad");l.querySelector(".er").textContent=m;bd=1;return null}
+function failed(id){if(!bd)return false;var f=$(id).querySelector(".fl.bad input,.fl.bad select");if(f)f.focus();var pn=$(id);pn.classList.remove("shake");void pn.offsetWidth;pn.classList.add("shake");return true}
+function T(id,label){var v=$(id).value.replace(/[<>]/g,"").replace(/\s+/g," ").trim();if(!v)return bad(id,label+" is required");if(v.length<2)return bad(id,"Enter at least 2 characters");if(v.length>40)return bad(id,"Maximum 40 characters");return v}
+function N(id,o){var raw=$(id).value.trim(),v=Number(raw);if(raw===""){if(o.opt)return o.def;return bad(id,"This field is required")}if(!isFinite(v))return bad(id,"Enter a valid number");if(o.pos?v<=0:v<0)return bad(id,o.pos?"Must be greater than 0":"Cannot be negative");if(v>MAX)return bad(id,"Amount is too large");return Math.round(v*100)/100}
+$("badd").onclick=function(){clrE("pb");var n=T("bn","Bank name"),b=N("bb",{}),l=$("bl").value.trim();
+ if(l&&!/^\d{4}$/.test(l))bad("bl","Enter exactly 4 digits");
+ if(n&&D.banks.some(function(x){return x.n.toLowerCase()===n.toLowerCase()&&(x.l||"")===l}))bad("bn","This account already exists");
+ if(failed("pb"))return;D.banks.push({id:uid(),n:n,t:$("bty").value,l:l,b:b});done("pb","Bank account added","#blist .bank:last-child,#hb .bank:last-child")};
+$("eadd").onclick=function(){clrE("pe");var dv=$("ed").value,a=N("ea",{pos:1});if(!$("ec").value)bad("ec","Select a category");
+ if(!dv)bad("ed","Date is required");else if(!/^\d{4}-\d{2}-\d{2}$/.test(dv)||isNaN(new Date(dv+"T00:00:00")))bad("ed","Enter a valid date");
+ var bk=getBank($("ebk").value);
+ if(!bk)bad("ebk",D.banks.length?"Select a bank account":"Add a bank account first");
+ else if(a!==null&&a>bk.b)bad("ea","Insufficient balance in "+bk.n+" ("+f(bk.b)+")");
+ if(failed("pe"))return;bk.b=r2(bk.b-a);D.exp.push({t:$("ec").value,a:a,c:$("ec").value,d:dv,k:bk.id});if(em.slice(5))em=dv.slice(0,7);else em=dv.slice(0,4)+"-";done("pe","Expense saved","#elist .row:first-child,#recent .row:first-child")};
+$("bset").onclick=function(){clrE("pu");var cat=$("bc").value,isNew=cat==="__new",nm=null,ic="🏷️";
+ if(!cat)bad("bc","Select a category");
+ if(isNew){nm=T("bcn","Category name");
+  if(nm){if(/['"\\`]/.test(nm))bad("bcn","Quotes and backslashes aren't allowed");
+   else if(nm.toLowerCase()==="all"||Object.keys(CAT).some(function(k){return k.toLowerCase()===nm.toLowerCase()}))bad("bcn","This category already exists")}
+  var iv=$("bci").value.replace(/[<>"']/g,"").trim();if(iv)ic=iv}
+ var a=N("ba",{pos:1});
+ if(failed("pu"))return;
+ if(isNew){var col=PAL[D.cc.length%PAL.length];CAT[nm]=[ic,col];D.cc.push({n:nm,i:ic,c:col});cat=nm}
+ var mk=pk();(D.mb[mk]=D.mb[mk]||{})[cat]=a;bm=mk;var bi=Object.keys(D.mb[mk]).indexOf(cat)+1;done("pu","Budget saved","#rings .rg:nth-child("+bi+"),#obud>div:nth-child("+bi+")")};
+$("tadd").onclick=function(){clrE("pt");var fr=getBank($("tf").value),to=getBank($("tt").value),a=N("ta",{pos:1}),n=$("tn").value.replace(/[<>]/g,"").replace(/\s+/g," ").trim();
+ if(D.banks.length<2)bad("tf","Add at least two bank accounts to transfer");
+ else{if(fr&&to&&fr.id===to.id)bad("tt","Choose a different account");
+  if(fr&&a!==null&&a>fr.b)bad("ta","Insufficient balance in "+fr.n+" ("+f(fr.b)+")")}
+ if(failed("pt"))return;
+ fr.b=r2(fr.b-a);to.b=r2(to.b+a);D.tr.push({f:fr.n,t:to.n,a:a,d:today(),n:n});done("pt","Transfer complete","#tlist .row:first-child")};
+$("ed").addEventListener("input",ehint);$("ed").onchange=ehint;$("ec").onchange=ehint;$("ebk").onchange=ehint;$("ea").addEventListener("input",ehint);
+$("bc").onchange=function(){toggleNew();bhint()};$("bpm").onchange=bhint;$("bpy").onchange=bhint;
+$("ii").addEventListener("input",ihint);$("ibk").onchange=ihint;$("idt").onchange=ihint;
+$("tf").onchange=thint;$("tt").onchange=thint;$("ta").addEventListener("input",thint);
+$("iadd").onclick=function(){clrE("pi");var n=T("in","Name"),i=N("ii",{pos:1}),dv=$("idt").value;
+ if(!dv)bad("idt","Date is required");else if(!/^\d{4}-\d{2}-\d{2}$/.test(dv)||isNaN(new Date(dv+"T00:00:00")))bad("idt","Enter a valid date");
+ var bk=getBank($("ibk").value);
+ if(!bk)bad("ibk",D.banks.length?"Select a bank account":"Add a bank account first");
+ else if(i!==null&&i>bk.b)bad("ii","Insufficient balance in "+bk.n+" ("+f(bk.b)+")");
+ if(failed("pi"))return;bk.b=r2(bk.b-i);D.inv.push({n:n,t:$("ity").value,i:i,c:i,d:dv,k:bk.id});im=im.slice(5)?dv.slice(0,7):dv.slice(0,4)+"-";done("pi","Investment saved","#ilist .row:first-child")};
+$("ladd").onclick=function(){clrE("pl");var n=T("ln","Loan name"),p=N("lp",{pos:1}),d=N("ld",{opt:1,def:0}),e=N("le",{opt:1,def:0});
+ if(p!==null&&d!==null&&d>p)bad("ld","Paid amount can't exceed the total");
+ if(p!==null&&e!==null&&e>p)bad("le","EMI can't exceed the total loan");
+ if(failed("pl"))return;D.loans.push({n:n,p:p,d:d,e:e});done("pl","Loan added","#llist .card:last-child")};
+["badd","eadd","bset","tadd","iadd","ladd"].forEach(function(id){var h=$(id).onclick,b=$(id);b.onclick=function(){if($("o_"+b.closest(".pan").id).classList.contains("out"))return;h()}});
+/* ===== Excel export (no external libraries, works offline) ===== */
+var CRCT=(function(){var t=[],c,n,k;for(n=0;n<256;n++){c=n;for(k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+function crc32(b){var c=0xFFFFFFFF;for(var i=0;i<b.length;i++)c=CRCT[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0}
+function zipFiles(files){
+ var enc=new TextEncoder(),parts=[],cd=[],off=0,n=new Date(),dt=((n.getFullYear()-1980)<<9)|((n.getMonth()+1)<<5)|n.getDate(),tm=(n.getHours()<<11)|(n.getMinutes()<<5)|(n.getSeconds()>>1);
+ files.forEach(function(F){
+  var nm=enc.encode(F[0]),d=enc.encode(F[1]),crc=crc32(d),lh=new DataView(new ArrayBuffer(30)),ch=new DataView(new ArrayBuffer(46));
+  lh.setUint32(0,0x04034b50,true);lh.setUint16(4,20,true);lh.setUint16(6,0x0800,true);lh.setUint16(10,tm,true);lh.setUint16(12,dt,true);lh.setUint32(14,crc,true);lh.setUint32(18,d.length,true);lh.setUint32(22,d.length,true);lh.setUint16(26,nm.length,true);
+  parts.push(new Uint8Array(lh.buffer),nm,d);
+  ch.setUint32(0,0x02014b50,true);ch.setUint16(4,20,true);ch.setUint16(6,20,true);ch.setUint16(8,0x0800,true);ch.setUint16(12,tm,true);ch.setUint16(14,dt,true);ch.setUint32(16,crc,true);ch.setUint32(20,d.length,true);ch.setUint32(24,d.length,true);ch.setUint16(28,nm.length,true);ch.setUint32(42,off,true);
+  cd.push(new Uint8Array(ch.buffer),nm);off+=30+nm.length+d.length});
+ var cs=0;cd.forEach(function(p){cs+=p.length});
+ var e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cs,true);e.setUint32(16,off,true);
+ return new Blob(parts.concat(cd,[new Uint8Array(e.buffer)]),{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})}
+function xe(s){return String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
+function colL(i){var s="";i++;while(i>0){var m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s}
+/* cell = value | {v, s:styleId, f:formula}. styles: 1 header, 2 title, 3 ₹, 4 date, 5 %, 6 total label, 7 total ₹, 8 note, 9 bold, 10 bold ₹, 11 integer, 12 total %, 13 total blank */
+function sheetXml(rows,o){
+ o=o||{};var w=[];
+ var sd=rows.map(function(r,ri){return '<row r="'+(ri+1)+'">'+r.map(function(c,ci){
+  if(c===null||c===undefined||c==="")return "";
+  var k=typeof c==="object"?c:{v:c},ref=colL(ci)+(ri+1),st=k.s?' s="'+k.s+'"':"";
+  if(k.v===""||k.v===null||k.v===undefined)return st?'<c r="'+ref+'"'+st+'/>':"";
+  var num=typeof k.v==="number",val=num?(isFinite(k.v)?k.v:0):k.v,len=num?14:String(val).length;
+  if(k.s!==2&&k.s!==8)w[ci]=Math.max(w[ci]||0,len);
+  if(k.f!==undefined)return '<c r="'+ref+'"'+st+'><f>'+xe(k.f)+'</f><v>'+val+'</v></c>';
+  if(num)return '<c r="'+ref+'"'+st+'><v>'+val+'</v></c>';
+  return '<c r="'+ref+'"'+st+' t="inlineStr"><is><t xml:space="preserve">'+xe(val)+'</t></is></c>'}).join("")+'</row>'}).join("");
+ var cols="";for(var i=0;i<w.length;i++)cols+='<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+Math.min(Math.max((w[i]||0)*1.1+3,12),46)+'" customWidth="1"/>';
+ return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"'+(o.first?' tabSelected="1"':'')+'>'+(o.freeze?'<pane ySplit="'+o.freeze+'" topLeftCell="A'+(o.freeze+1)+'" activePane="bottomLeft" state="frozen"/><selection pane="bottomLeft"/>':'')+'</sheetView></sheetViews>'+(cols?'<cols>'+cols+'</cols>':'')+'<sheetData>'+sd+'</sheetData></worksheet>'}
+function ser(d){var p=String(d||"").split("-");if(p.length!==3)return d||"";return Math.round(Date.UTC(+p[0],+p[1]-1,+p[2])/864e5)+25569}
+var STYLES='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="&quot;₹&quot;#,##0.00"/><numFmt numFmtId="165" formatCode="dd\\-mmm\\-yyyy"/></numFmts>'
++'<fonts count="5"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font><font><b/><sz val="16"/><color rgb="FF5B5BF0"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><i/><sz val="10"/><color rgb="FF6C7493"/><name val="Calibri"/></font></fonts>'
++'<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF5B5BF0"/><bgColor indexed="64"/></patternFill></fill></fills>'
++'<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top style="thin"><color rgb="FF5B5BF0"/></top><bottom/><diagonal/></border></borders>'
++'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="14">'
++'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
++'<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>'
++'<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
++'<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
++'<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="left"/></xf>'
++'<xf numFmtId="10" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
++'<xf numFmtId="0" fontId="3" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/>'
++'<xf numFmtId="164" fontId="3" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1"/>'
++'<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
++'<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
++'<xf numFmtId="164" fontId="3" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/>'
++'<xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
++'<xf numFmtId="10" fontId="3" fillId="0" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyBorder="1"/>'
++'<xf numFmtId="0" fontId="3" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1"/>'
++'</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+function buildXlsx(s){
+ var H=function(a){return a.map(function(t){return {v:t,s:1}})},TL=function(t){return {v:t,s:6}},TB=function(){return {v:"",s:13}};
+ var n2=function(x){return Math.round((Number(x)||0)*100)/100},bn=function(id){var b=id?getBank(id):null;return b?b.n:"—"};
+ var byDate=function(a,b){return String(a.d||"").localeCompare(String(b.d||""))};
+ var ex=D.exp.filter(function(e){return s.in(e.d)}).sort(byDate),iv=D.inv.filter(function(v){return s.in(v.d)}).sort(byDate),tr=D.tr.filter(function(t){return s.in(t.d)}).sort(byDate);
+ var R,n,t;
+ /* Expenses */
+ R=[H(["Date","Description","Category","Bank account","Amount (₹)"])];
+ ex.forEach(function(e){R.push([{v:ser(e.d),s:4},e.t,e.c,bn(e.k),{v:n2(e.a),s:3}])});
+ var etot=n2(sum(ex,"a"));
+ if(ex.length)R.push([TL("Total"),TB(),TB(),TB(),{v:etot,f:"SUM(E2:E"+(ex.length+1)+")",s:7}]);else R.push([{v:"No expenses in this period",s:8}]);
+ var shExp=sheetXml(R,{freeze:1});
+ /* Budgets */
+ var cats={},bgt={},sp={};
+ ex.forEach(function(e){cats[e.c]=1;sp[e.c]=(sp[e.c]||0)+e.a});
+ Object.keys(D.mb).forEach(function(k){if(s.m?k===s.y+"-"+s.m:k.slice(0,4)===s.y)Object.keys(D.mb[k]).forEach(function(c){bgt[c]=(bgt[c]||0)+D.mb[k][c];cats[c]=1})});
+ var ck=Object.keys(cats).sort(),tb=0,tp=0;
+ R=[H(["Category","Budget (₹)","Spent (₹)","Remaining (₹)","% Used"])];
+ ck.forEach(function(c,i){var r=i+2,b=n2(bgt[c]),p=n2(sp[c]);tb+=b;tp+=p;R.push([c,{v:b,s:3},{v:p,s:3},{v:n2(b-p),f:"B"+r+"-C"+r,s:3},{v:b?p/b:0,f:"IF(B"+r+"=0,0,C"+r+"/B"+r+")",s:5}])});
+ tb=n2(tb);tp=n2(tp);t=ck.length+2;
+ if(ck.length)R.push([TL("Total"),{v:tb,f:"SUM(B2:B"+(t-1)+")",s:7},{v:tp,f:"SUM(C2:C"+(t-1)+")",s:7},{v:n2(tb-tp),f:"B"+t+"-C"+t,s:7},{v:tb?tp/tb:0,f:"IF(B"+t+"=0,0,C"+t+"/B"+t+")",s:12}]);else R.push([{v:"No budgets or expenses in this period",s:8}]);
+ var shBud=sheetXml(R,{freeze:1});
+ /* Investments */
+ R=[H(["Date","Name","Type","Bank account","Invested (₹)","Current value (₹)","Gain / Loss (₹)","Return %"])];
+ iv.forEach(function(v,i){var r=i+2,a=n2(v.i),c=n2(v.c);R.push([{v:ser(v.d),s:4},v.n,v.t,bn(v.k),{v:a,s:3},{v:c,s:3},{v:n2(c-a),f:"F"+r+"-E"+r,s:3},{v:a?(c-a)/a:0,f:"IF(E"+r+"=0,0,G"+r+"/E"+r+")",s:5}])});
+ var ti=n2(sum(iv,"i")),tc=n2(sum(iv,"c"));t=iv.length+2;
+ if(iv.length)R.push([TL("Total"),TB(),TB(),TB(),{v:ti,f:"SUM(E2:E"+(t-1)+")",s:7},{v:tc,f:"SUM(F2:F"+(t-1)+")",s:7},{v:n2(tc-ti),f:"F"+t+"-E"+t,s:7},{v:ti?(tc-ti)/ti:0,f:"IF(E"+t+"=0,0,G"+t+"/E"+t+")",s:12}]);else R.push([{v:"No investments in this period",s:8}]);
+ var shInv=sheetXml(R,{freeze:1});
+ /* Transfers */
+ R=[H(["Date","From","To","Amount (₹)","Note"])];
+ tr.forEach(function(x){R.push([{v:ser(x.d),s:4},x.f,x.t,{v:n2(x.a),s:3},x.n||""])});
+ var tt=n2(sum(tr,"a"));t=tr.length+2;
+ if(tr.length)R.push([TL("Total"),TB(),TB(),{v:tt,f:"SUM(D2:D"+(t-1)+")",s:7},TB()]);else R.push([{v:"No transfers in this period",s:8}]);
+ var shTr=sheetXml(R,{freeze:1});
+ /* Banks (current snapshot) */
+ R=[H(["Bank","Account type","Last 4 digits","Balance (₹)"])];
+ D.banks.forEach(function(b){R.push([b.n,b.t,b.l||"",{v:n2(b.b),s:3}])});
+ var tbk=n2(sum(D.banks,"b")),bkRow=D.banks.length+2;
+ if(D.banks.length)R.push([TL("Total"),TB(),TB(),{v:tbk,f:"SUM(D2:D"+(bkRow-1)+")",s:7}]);else R.push([{v:"No bank accounts",s:8}]);
+ R.push([]);R.push([{v:"Balances are as of the export date, not historical.",s:8}]);
+ var shBank=sheetXml(R,{freeze:1});
+ /* Loans (current snapshot) */
+ R=[H(["Loan","Total (₹)","Paid (₹)","Remaining (₹)","% Repaid","Monthly EMI (₹)","Months left"])];
+ D.loans.forEach(function(l,i){var r=i+2,p=n2(l.p),d=n2(l.d),e=n2(l.e);R.push([l.n,{v:p,s:3},{v:d,s:3},{v:n2(p-d),f:"B"+r+"-C"+r,s:3},{v:p?d/p:0,f:"IF(B"+r+"=0,0,C"+r+"/B"+r+")",s:5},{v:e,s:3},{v:e?Math.ceil((p-d)/e):0,f:"IF(F"+r+"=0,0,ROUNDUP(D"+r+"/F"+r+",0))",s:11}])});
+ var lp=n2(sum(D.loans,"p")),ld=n2(sum(D.loans,"d")),le=n2(sum(D.loans,"e")),lr=D.loans.length+2;
+ if(D.loans.length)R.push([TL("Total"),{v:lp,f:"SUM(B2:B"+(lr-1)+")",s:7},{v:ld,f:"SUM(C2:C"+(lr-1)+")",s:7},{v:n2(lp-ld),f:"B"+lr+"-C"+lr,s:7},{v:lp?ld/lp:0,f:"IF(B"+lr+"=0,0,C"+lr+"/B"+lr+")",s:12},{v:le,f:"SUM(F2:F"+(lr-1)+")",s:7},TB()]);else R.push([{v:"No loans",s:8}]);
+ R.push([]);R.push([{v:"Loan figures are as of the export date, not historical.",s:8}]);
+ var shLoan=sheetXml(R,{freeze:1});
+ /* Summary */
+ var S=[[{v:"Finza – Financial Report",s:2}],[{v:"Period: "+s.label,s:9}],[{v:"Generated on "+new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"}),s:8}],[],H(["Metric","Value"])];
+ var add=function(l,v,st,f){S.push([l,{v:v,s:st,f:f}]);return S.length};
+ add("Expense transactions",ex.length,11);
+ add("Total expenses",etot,3,ex.length?"Expenses!E"+(ex.length+2):undefined);
+ add("Total budget",tb,3,ck.length?"Budgets!B"+(ck.length+2):undefined);
+ add("Budget remaining",n2(tb-tp),3,ck.length?"Budgets!D"+(ck.length+2):undefined);
+ add("Amount invested",ti,3,iv.length?"Investments!E"+(iv.length+2):undefined);
+ add("Investments – current value",tc,3,iv.length?"Investments!F"+(iv.length+2):undefined);
+ add("Investment gain / loss",n2(tc-ti),3,iv.length?"Investments!G"+(iv.length+2):undefined);
+ add("Money transferred between accounts",tt,3,tr.length?"Transfers!D"+(tr.length+2):undefined);
+ S.push([]);S.push([{v:"Position as of export date",s:9}]);
+ var rb=add("Total bank balance",tbk,3,D.banks.length?"Banks!D"+bkRow:undefined);
+ var ra=add("All investments – current value",n2(sum(D.inv,"c")),3);
+ var ro=add("Loans outstanding",n2(lp-ld),3,D.loans.length?"Loans!D"+lr:undefined);
+ add("Monthly EMI",le,3,D.loans.length?"Loans!F"+lr:undefined);
+ add("Net worth",n2(tbk+sum(D.inv,"c")-(lp-ld)),10,"B"+rb+"+B"+ra+"-B"+ro);
+ if(!s.m){
+  S.push([]);S.push([{v:"Month-by-month",s:9}]);S.push(H(["Month","Expenses (₹)","Invested (₹)"]));var st=S.length+1,te=0,tv=0;
+  for(var mi=0;mi<12;mi++){var mk=s.y+"-"+pad(mi+1),me=n2(sum(ex.filter(function(e){return e.d.slice(0,7)===mk}),"a")),mv=n2(sum(iv.filter(function(v){return v.d.slice(0,7)===mk}),"i"));te+=me;tv+=mv;S.push([MN[mi],{v:me,s:3},{v:mv,s:3}])}
+  S.push([TL("Total"),{v:n2(te),f:"SUM(B"+st+":B"+(st+11)+")",s:7},{v:n2(tv),f:"SUM(C"+st+":C"+(st+11)+")",s:7}])}
+ var shSum=sheetXml(S,{first:1});
+ var names=["Summary","Expenses","Budgets","Investments","Transfers","Banks","Loans"],xml=[shSum,shExp,shBud,shInv,shTr,shBank,shLoan],H0='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+ var files=[["[Content_Types].xml",H0+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+names.map(function(x,i){return '<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'}).join("")+'</Types>'],
+  ["_rels/.rels",H0+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'],
+  ["xl/workbook.xml",H0+'<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+names.map(function(x,i){return '<sheet name="'+x+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>'}).join("")+'</sheets><calcPr fullCalcOnLoad="1"/></workbook>'],
+  ["xl/_rels/workbook.xml.rels",H0+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+names.map(function(x,i){return '<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>'}).join("")+'<Relationship Id="rId'+(names.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'],
+  ["xl/styles.xml",STYLES]];
+ xml.forEach(function(x,i){files.push(["xl/worksheets/sheet"+(i+1)+".xml",x])});
+ return zipFiles(files)}
+function xyears(){var ys={};ys[new Date().getFullYear()]=1;D.exp.forEach(function(e){ys[+e.d.slice(0,4)]=1});D.inv.forEach(function(v){ys[+v.d.slice(0,4)]=1});D.tr.forEach(function(t){if(t.d)ys[+t.d.slice(0,4)]=1});Object.keys(D.mb).forEach(function(k){ys[+k.slice(0,4)]=1});return Object.keys(ys).sort()}
+function xsel(){var y=$("xy").value,m=$("xm").value;return {y:y,m:m,label:m?MN[+m-1]+" "+y:"Full year "+y,in:function(d){d=String(d||"");return m?d.slice(0,7)===y+"-"+m:d.slice(0,4)===y}}}
+function xhint(){var s=xsel(),a=D.exp.filter(function(e){return s.in(e.d)}).length,b=D.inv.filter(function(v){return s.in(v.d)}).length,c=D.tr.filter(function(x){return s.in(x.d)}).length,h=$("xh");
+ h.className="hint "+(a+b+c?"gn":"am");h.textContent=a+b+c?s.label+": "+a+" expenses · "+b+" investments · "+c+" transfers":"No records for "+s.label+" – the file will only contain balances and loans"}
+function fillX(){var n=new Date();$("xy").innerHTML=xyears().map(function(y){return '<option value="'+y+'">'+y+'</option>'}).join("");$("xm").innerHTML='<option value="">Full year (all months)</option>'+MN.map(function(m,i){return '<option value="'+pad(i+1)+'">'+m+'</option>'}).join("");$("xy").value=String(n.getFullYear());$("xm").value=pad(n.getMonth()+1);xhint()}
+function dlBlob(b,name){var u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u)},4000)}
+$("xm").onchange=xhint;$("xy").onchange=xhint;
+$("xs").onclick=$("xf").onclick=function(){openM("px")};
+$("xgo").onclick=function(){try{var s=xsel();dlBlob(buildXlsx(s),"Finza_Report_"+s.y+(s.m?"-"+s.m:"")+".xlsx");closeM("px");toast("Excel downloaded")}catch(e){console.error(e);$("xh").className="hint rd";$("xh").textContent="Export failed: "+e.message}};
+
+$("rf").onclick=function(){this.classList.remove("spin");void this.offsetWidth;this.classList.add("spin");renderNow()};renderNow();var h=location.hash.slice(1);show($(h)&&$(h).classList.contains("sec")?h:"home");
+</script>
+</body>
+</html>
